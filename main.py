@@ -119,7 +119,10 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
         elif izbor == "4":
             id_pratioca = ucitaj_pozitivan_ceo_broj("ID korisnika koji prati: ")
             id_pracenog = ucitaj_pozitivan_ceo_broj("ID korisnika koji ce biti pracen: ")
-            ispisi_rezultat(aplikacija.dodaj_pracenje(id_pratioca, id_pracenog))
+            if aplikacija.dodaj_pracenje(id_pratioca, id_pracenog):
+                print(f"Veza od {id_pratioca} do {id_pracenog} je uspesno dodata.")
+            else:
+                print("Veza nije dodata. Proverite ID-jeve, postojecu vezu ili blokiranje.")
 
         elif izbor == "5":
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
@@ -150,7 +153,10 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID novog korisnika: ")
             korisnicko_ime = input("Korisnicko ime: ").strip()
             biografija = input("Biografija: ").strip()
-            ispisi_rezultat(aplikacija.dodaj_korisnika(id_korisnika, korisnicko_ime, biografija))
+            if aplikacija.dodaj_korisnika(id_korisnika, korisnicko_ime, biografija):
+                print(f"Korisnik {korisnicko_ime} je uspesno dodat.")
+            else:
+                print("Korisnik nije dodat. ID ili korisnicko ime vec postoji.")
 
         elif izbor == "0":
             print("Dovidjenja!")

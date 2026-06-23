@@ -1,4 +1,9 @@
+from algorithms.pagerank import (
+    izracunaj_pagerank,
+    pronadji_najbolje_korisnike,
+)
 from data_access.loader import ucitaj_skup_podataka
+from models.user import User
 from search.search_engine import Pretrazivac
 
 
@@ -10,7 +15,17 @@ class SocialNetworkApp:
 
     def ucitaj_skup_podataka(self, putanja_do_skupa):
         self.graf = ucitaj_skup_podataka(putanja_do_skupa)
+        self.graf.pagerank = izracunaj_pagerank(self.graf)
         self.pretrazivac = Pretrazivac(self.graf)
+
+    def _osvezi_pagerank(self):
+        if self.graf is None:
+            return
+
+        self.graf.pagerank = izracunaj_pagerank(
+            self.graf,
+            pocetni_rezultati=self.graf.pagerank,
+        )
 
     def pretrazi_po_korisnickom_imenu(self, tekst_pretrage, ogranicenje=10):
         if self.pretrazivac is None or self.graf is None:
@@ -33,10 +48,26 @@ class SocialNetworkApp:
         )
 
     def pronadji_najuticajnije_korisnike(self, ogranicenje=10):
-        pass
+        if self.graf is None:
+            return []
+
+        najbolji = pronadji_najbolje_korisnike(
+            self.graf.pagerank,
+            ogranicenje,
+        )
+        return [
+            (self.graf.pronadji_korisnika(id_korisnika), rezultat)
+            for id_korisnika, rezultat in najbolji
+        ]
 
     def dodaj_pracenje(self, id_pratioca, id_pracenog):
-        pass
+        if self.graf is None:
+            return False
+
+        uspesno = self.graf.dodaj_pracenje(id_pratioca, id_pracenog)
+        if uspesno:
+            self._osvezi_pagerank()
+        return uspesno
 
     def pronadji_istoriju_interakcija(self, id_korisnika):
         pass
@@ -54,4 +85,19 @@ class SocialNetworkApp:
         pass
 
     def dodaj_korisnika(self, id_korisnika, korisnicko_ime, biografija):
-        pass
+        if self.graf is None or self.pretrazivac is None:
+            return False
+
+        korisnicko_ime = korisnicko_ime.strip()
+        if (
+            not korisnicko_ime
+            or self.graf.korisnik_postoji(id_korisnika)
+            or self.graf.pronadji_korisnika_po_imenu(korisnicko_ime) is not None
+        ):
+            return False
+
+        korisnik = User(id_korisnika, korisnicko_ime, biografija)
+        self.graf.dodaj_korisnika(korisnik)
+        self.pretrazivac.dodaj_korisnika_u_indeks(id_korisnika)
+        self._osvezi_pagerank()
+        return True
