@@ -1,10 +1,8 @@
-from pathlib import Path
-
 from graph.social_graph import SocialGraph
 from models.user import User
 
 
-def ucitaj_korisnike(putanja: Path, graf: SocialGraph) -> None:
+def ucitaj_korisnike(putanja, graf):
     with putanja.open("r", encoding="utf-8") as fajl:
         for linija in fajl:
             linija = linija.strip()
@@ -20,7 +18,7 @@ def ucitaj_korisnike(putanja: Path, graf: SocialGraph) -> None:
             graf.dodaj_korisnika(korisnik)
 
 
-def ucitaj_konekcije(putanja: Path, graf: SocialGraph) -> None:
+def ucitaj_konekcije(putanja, graf):
     with putanja.open("r", encoding="utf-8") as fajl:
         for linija in fajl:
             linija = linija.strip()
@@ -35,7 +33,7 @@ def ucitaj_konekcije(putanja: Path, graf: SocialGraph) -> None:
             graf.dodaj_pracenje(int(id_pratioca), int(id_pracenog))
 
 
-def ucitaj_blokiranja(putanja: Path, graf: SocialGraph) -> None:
+def ucitaj_blokiranja(putanja, graf):
     with putanja.open("r", encoding="utf-8") as fajl:
         for linija in fajl:
             linija = linija.strip()
@@ -50,7 +48,7 @@ def ucitaj_blokiranja(putanja: Path, graf: SocialGraph) -> None:
             graf.dodaj_blokiranje(int(id_blokera), int(id_blokiranog))
 
 
-def ucitaj_skup_podataka(putanja_do_skupa: Path) -> SocialGraph:
+def ucitaj_skup_podataka(putanja_do_skupa):
     graf = SocialGraph()
 
     ucitaj_korisnike(putanja_do_skupa / "users.txt", graf)

@@ -1,43 +1,46 @@
-from pathlib import Path
-from typing import Any
-
 from data_access.loader import ucitaj_skup_podataka
+from search.search_engine import Pretrazivac
 
 
 class SocialNetworkApp:
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.graf = None
+        self.pretrazivac = None
 
-    def ucitaj_skup_podataka(self, putanja_do_skupa: Path) -> None:
+    def ucitaj_skup_podataka(self, putanja_do_skupa):
         self.graf = ucitaj_skup_podataka(putanja_do_skupa)
+        self.pretrazivac = Pretrazivac(self.graf)
 
-    def pretrazi_po_korisnickom_imenu(self, upit: str, limit: int = 10) -> Any:
+    def pretrazi_po_korisnickom_imenu(self, tekst_pretrage, ogranicenje=10):
         pass
 
-    def pretrazi_po_biografiji(self, upit: str, limit: int = 10) -> Any:
+    def pretrazi_po_biografiji(self, tekst_pretrage, ogranicenje=10):
+        if self.pretrazivac is None:
+            return []
+
+        return self.pretrazivac.pretrazi_po_biografiji(tekst_pretrage, ogranicenje=ogranicenje)
+
+    def pronadji_najuticajnije_korisnike(self, ogranicenje=10):
         pass
 
-    def pronadji_najuticajnije_korisnike(self, limit: int = 10) -> Any:
+    def dodaj_pracenje(self, id_pratioca, id_pracenog):
         pass
 
-    def dodaj_pracenje(self, id_pratioca: int, id_pracenog: int) -> Any:
+    def pronadji_istoriju_interakcija(self, id_korisnika):
         pass
 
-    def pronadji_istoriju_interakcija(self, id_korisnika: int) -> Any:
+    def automatski_dovrsi(self, prefiks, ogranicenje=5):
         pass
 
-    def automatski_dovrsi(self, prefiks: str, limit: int = 5) -> Any:
+    def preporuci_korisnike(self, id_korisnika, alfa, ogranicenje=10):
         pass
 
-    def preporuci_korisnike(self, id_korisnika: int, alfa: float, limit: int = 10) -> Any:
+    def pronadji_nivoe_konekcija(self, id_korisnika, maksimalni_nivo):
         pass
 
-    def pronadji_nivoe_konekcija(self, id_korisnika: int, maksimalni_nivo: int) -> Any:
+    def predlozi_slicna_imena(self, korisnicko_ime, ogranicenje=5):
         pass
 
-    def predlozi_slicna_imena(self, korisnicko_ime: str, limit: int = 5) -> Any:
-        pass
-
-    def dodaj_korisnika(self, id_korisnika: int, korisnicko_ime: str, biografija: str) -> Any:
+    def dodaj_korisnika(self, id_korisnika, korisnicko_ime, biografija):
         pass
