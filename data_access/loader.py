@@ -30,7 +30,11 @@ def ucitaj_konekcije(putanja, graf):
                 continue
 
             id_pratioca, id_pracenog = delovi
-            graf.dodaj_pracenje(int(id_pratioca), int(id_pracenog))
+            graf.dodaj_pracenje(
+                int(id_pratioca),
+                int(id_pracenog),
+                evidentiraj=False,
+            )
 
 
 def ucitaj_blokiranja(putanja, graf):

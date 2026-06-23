@@ -97,6 +97,32 @@ def ispisi_rezultat(result: Any) -> None:
     print(result)
 
 
+def ispisi_istoriju_interakcija(istorija: list[dict] | None) -> None:
+    if istorija is None:
+        print("Korisnik sa unetim ID-jem ne postoji.")
+        return
+
+    if not istorija:
+        print("Korisnik nema evidentiranih interakcija.")
+        return
+
+    for dogadjaj in istorija:
+        redni_broj = dogadjaj["redni_broj"]
+        drugi_id = dogadjaj["drugi_korisnik_id"]
+        drugi_username = dogadjaj["drugi_korisnik_username"]
+
+        if dogadjaj["smer"] == "zapratio":
+            print(
+                f"{redni_broj}. Zapratio/la korisnika "
+                f"{drugi_username} (ID: {drugi_id})."
+            )
+        else:
+            print(
+                f"{redni_broj}. Korisnik {drugi_username} "
+                f"(ID: {drugi_id}) ga/ju je zapratio."
+            )
+
+
 def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
     while True:
         ispisi_meni()
@@ -126,7 +152,9 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
 
         elif izbor == "5":
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
-            ispisi_rezultat(aplikacija.pronadji_istoriju_interakcija(id_korisnika))
+            ispisi_istoriju_interakcija(
+                aplikacija.pronadji_istoriju_interakcija(id_korisnika)
+            )
 
         elif izbor == "6":
             prefiks = input("Pocetak korisnickog imena: ").strip()

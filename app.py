@@ -70,7 +70,10 @@ class SocialNetworkApp:
         return uspesno
 
     def pronadji_istoriju_interakcija(self, id_korisnika):
-        pass
+        if self.graf is None:
+            return None
+
+        return self.graf.pronadji_istoriju_interakcija(id_korisnika)
 
     def automatski_dovrsi(self, prefiks, ogranicenje=5):
         pass

@@ -10,6 +10,7 @@ class SocialGraph:
         self.blokiran_od = {}
         self.pagerank = {}
         self.istorija = []
+        self.sledeci_redni_broj_dogadjaja = 1
 
     def dodaj_korisnika(self, korisnik):
         self.korisnici_po_id[korisnik.id] = korisnik
@@ -20,7 +21,7 @@ class SocialGraph:
         self.blokirao.setdefault(korisnik.id, set())
         self.blokiran_od.setdefault(korisnik.id, set())
 
-    def dodaj_pracenje(self, id_pratioca, id_pracenog):
+    def dodaj_pracenje(self, id_pratioca, id_pracenog, evidentiraj=True):
         if id_pratioca not in self.korisnici_po_id or id_pracenog not in self.korisnici_po_id:
             return False
 
@@ -36,6 +37,18 @@ class SocialGraph:
         self.prati[id_pratioca].add(id_pracenog)
         self.pratioci.setdefault(id_pracenog, set()).add(id_pratioca)
         self.izlazni_stepen[id_pratioca] = len(self.prati[id_pratioca])
+
+        if evidentiraj:
+            self.istorija.append(
+                {
+                    "redni_broj": self.sledeci_redni_broj_dogadjaja,
+                    "tip": "pracenje",
+                    "id_pratioca": id_pratioca,
+                    "id_pracenog": id_pracenog,
+                }
+            )
+            self.sledeci_redni_broj_dogadjaja += 1
+
         return True
 
     def dodaj_blokiranje(self, id_blokera, id_blokiranog):
@@ -85,8 +98,33 @@ class SocialGraph:
         }
 
     def pronadji_istoriju_interakcija(self, id_korisnika):
-        # TODO: Bice dovrseno u celini za istoriju interakcija.
-        return []
+        if not self.korisnik_postoji(id_korisnika):
+            return None
+
+        dogadjaji = []
+        for dogadjaj in self.istorija:
+            id_pratioca = dogadjaj["id_pratioca"]
+            id_pracenog = dogadjaj["id_pracenog"]
+
+            if id_korisnika == id_pratioca:
+                drugi_korisnik = self.pronadji_korisnika(id_pracenog)
+                smer = "zapratio"
+            elif id_korisnika == id_pracenog:
+                drugi_korisnik = self.pronadji_korisnika(id_pratioca)
+                smer = "zapratio_njega"
+            else:
+                continue
+
+            dogadjaji.append(
+                {
+                    **dogadjaj,
+                    "smer": smer,
+                    "drugi_korisnik_id": drugi_korisnik.id,
+                    "drugi_korisnik_username": drugi_korisnik.username,
+                }
+            )
+
+        return dogadjaji
 
     def bfs_nivoi(self, pocetni_id, maksimalni_nivo):
         # TODO: Bice implementirano u celini za BFS.
