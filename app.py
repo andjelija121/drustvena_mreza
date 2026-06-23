@@ -13,13 +13,24 @@ class SocialNetworkApp:
         self.pretrazivac = Pretrazivac(self.graf)
 
     def pretrazi_po_korisnickom_imenu(self, tekst_pretrage, ogranicenje=10):
-        pass
+        if self.pretrazivac is None or self.graf is None:
+            return []
+
+        return self.pretrazivac.pretrazi_po_korisnickom_imenu(
+            tekst_pretrage,
+            self.graf.pagerank,
+            ogranicenje,
+        )
 
     def pretrazi_po_biografiji(self, tekst_pretrage, ogranicenje=10):
         if self.pretrazivac is None:
             return []
 
-        return self.pretrazivac.pretrazi_po_biografiji(tekst_pretrage, ogranicenje=ogranicenje)
+        return self.pretrazivac.pretrazi_po_biografiji(
+            tekst_pretrage,
+            self.graf.pagerank,
+            ogranicenje,
+        )
 
     def pronadji_najuticajnije_korisnike(self, ogranicenje=10):
         pass

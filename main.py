@@ -100,59 +100,59 @@ def ispisi_rezultat(result: Any) -> None:
 def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
     while True:
         ispisi_meni()
-        choice = input("Izaberite opciju: ").strip()
+        izbor = input("Izaberite opciju: ").strip()
 
-        if choice == "1":
-            username = input("Korisnicko ime ili deo imena: ").strip()
-            limit = ucitaj_pozitivan_ceo_broj("Broj rezultata [10]: ", podrazumevano=10)
-            ispisi_rezultat(aplikacija.pretrazi_po_korisnickom_imenu(username, limit))
+        if izbor == "1":
+            tekst_pretrage = input("Korisnicko ime: ").strip()
+            ogranicenje = ucitaj_pozitivan_ceo_broj("Broj rezultata [10]: ", podrazumevano=10)
+            ispisi_rezultat(aplikacija.pretrazi_po_korisnickom_imenu(tekst_pretrage, ogranicenje))
 
-        elif choice == "2":
-            query = input("Reci iz biografije: ").strip()
-            limit = ucitaj_pozitivan_ceo_broj("Broj rezultata [10]: ", podrazumevano=10)
-            ispisi_rezultat(aplikacija.pretrazi_po_biografiji(query, limit))
+        elif izbor == "2":
+            tekst_pretrage = input("Reci iz biografije: ").strip()
+            ogranicenje = ucitaj_pozitivan_ceo_broj("Broj rezultata [10]: ", podrazumevano=10)
+            ispisi_rezultat(aplikacija.pretrazi_po_biografiji(tekst_pretrage, ogranicenje))
 
-        elif choice == "3":
-            limit = ucitaj_pozitivan_ceo_broj("Broj korisnika [10]: ", podrazumevano=10)
-            ispisi_rezultat(aplikacija.pronadji_najuticajnije_korisnike(limit))
+        elif izbor == "3":
+            ogranicenje = ucitaj_pozitivan_ceo_broj("Broj korisnika [10]: ", podrazumevano=10)
+            ispisi_rezultat(aplikacija.pronadji_najuticajnije_korisnike(ogranicenje))
 
-        elif choice == "4":
-            follower_id = ucitaj_pozitivan_ceo_broj("ID korisnika koji prati: ")
-            followed_id = ucitaj_pozitivan_ceo_broj("ID korisnika koji ce biti pracen: ")
-            ispisi_rezultat(aplikacija.dodaj_pracenje(follower_id, followed_id))
+        elif izbor == "4":
+            id_pratioca = ucitaj_pozitivan_ceo_broj("ID korisnika koji prati: ")
+            id_pracenog = ucitaj_pozitivan_ceo_broj("ID korisnika koji ce biti pracen: ")
+            ispisi_rezultat(aplikacija.dodaj_pracenje(id_pratioca, id_pracenog))
 
-        elif choice == "5":
-            user_id = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
-            ispisi_rezultat(aplikacija.pronadji_istoriju_interakcija(user_id))
+        elif izbor == "5":
+            id_korisnika = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
+            ispisi_rezultat(aplikacija.pronadji_istoriju_interakcija(id_korisnika))
 
-        elif choice == "6":
-            prefix = input("Pocetak korisnickog imena: ").strip()
-            limit = ucitaj_pozitivan_ceo_broj("Broj predloga [5]: ", podrazumevano=5)
-            ispisi_rezultat(aplikacija.automatski_dovrsi(prefix, limit))
+        elif izbor == "6":
+            prefiks = input("Pocetak korisnickog imena: ").strip()
+            ogranicenje = ucitaj_pozitivan_ceo_broj("Broj predloga [5]: ", podrazumevano=5)
+            ispisi_rezultat(aplikacija.automatski_dovrsi(prefiks, ogranicenje))
 
-        elif choice == "7":
-            user_id = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
-            alpha = ucitaj_alfu()
-            limit = ucitaj_pozitivan_ceo_broj("Broj preporuka [10]: ", podrazumevano=10)
-            ispisi_rezultat(aplikacija.preporuci_korisnike(user_id, alpha, limit))
+        elif izbor == "7":
+            id_korisnika = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
+            alfa = ucitaj_alfu()
+            ogranicenje = ucitaj_pozitivan_ceo_broj("Broj preporuka [10]: ", podrazumevano=10)
+            ispisi_rezultat(aplikacija.preporuci_korisnike(id_korisnika, alfa, ogranicenje))
 
-        elif choice == "8":
-            user_id = ucitaj_pozitivan_ceo_broj("ID pocetnog korisnika: ")
-            max_level = ucitaj_pozitivan_ceo_broj("Maksimalni nivo: ")
-            ispisi_rezultat(aplikacija.pronadji_nivoe_konekcija(user_id, max_level))
+        elif izbor == "8":
+            id_korisnika = ucitaj_pozitivan_ceo_broj("ID pocetnog korisnika: ")
+            maksimalni_nivo = ucitaj_pozitivan_ceo_broj("Maksimalni nivo: ")
+            ispisi_rezultat(aplikacija.pronadji_nivoe_konekcija(id_korisnika, maksimalni_nivo))
 
-        elif choice == "9":
-            username = input("Pogresno uneto korisnicko ime: ").strip()
-            limit = ucitaj_pozitivan_ceo_broj("Broj predloga [5]: ", podrazumevano=5)
-            ispisi_rezultat(aplikacija.predlozi_slicna_imena(username, limit))
+        elif izbor == "9":
+            korisnicko_ime = input("Pogresno uneto korisnicko ime: ").strip()
+            ogranicenje = ucitaj_pozitivan_ceo_broj("Broj predloga [5]: ", podrazumevano=5)
+            ispisi_rezultat(aplikacija.predlozi_slicna_imena(korisnicko_ime, ogranicenje))
 
-        elif choice == "10":
-            user_id = ucitaj_pozitivan_ceo_broj("ID novog korisnika: ")
-            username = input("Korisnicko ime: ").strip()
-            bio = input("Biografija: ").strip()
-            ispisi_rezultat(aplikacija.dodaj_korisnika(user_id, username, bio))
+        elif izbor == "10":
+            id_korisnika = ucitaj_pozitivan_ceo_broj("ID novog korisnika: ")
+            korisnicko_ime = input("Korisnicko ime: ").strip()
+            biografija = input("Biografija: ").strip()
+            ispisi_rezultat(aplikacija.dodaj_korisnika(id_korisnika, korisnicko_ime, biografija))
 
-        elif choice == "0":
+        elif izbor == "0":
             print("Dovidjenja!")
             break
 
