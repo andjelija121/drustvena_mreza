@@ -73,10 +73,28 @@ class SocialNetworkApp:
         if self.graf is None:
             return False
 
+        if self.validiraj_pracenje(id_pratioca, id_pracenog) is not None:
+            return False
+
         uspesno = self.graf.dodaj_pracenje(id_pratioca, id_pracenog)
         if uspesno:
             self._osvezi_pagerank()
         return uspesno
+
+    def validiraj_pracenje(self, id_pratioca, id_pracenog):
+        if self.graf is None:
+            return "Skup podataka nije ucitan."
+        if not self.graf.korisnik_postoji(id_pratioca):
+            return f"Korisnik koji prati (ID {id_pratioca}) ne postoji."
+        if not self.graf.korisnik_postoji(id_pracenog):
+            return f"Korisnik koji treba da bude pracen (ID {id_pracenog}) ne postoji."
+        if id_pratioca == id_pracenog:
+            return "Korisnik ne moze da prati samog sebe."
+        if self.graf.postoji_blokiranje(id_pratioca, id_pracenog):
+            return "Veza nije dozvoljena jer izmedju korisnika postoji blokiranje."
+        if id_pracenog in self.graf.pronadji_pracene(id_pratioca):
+            return "Ova veza pracenja vec postoji."
+        return None
 
     def pronadji_istoriju_interakcija(self, id_korisnika):
         if self.graf is None:
@@ -138,11 +156,7 @@ class SocialNetworkApp:
             return False
 
         korisnicko_ime = korisnicko_ime.strip()
-        if (
-            not korisnicko_ime
-            or self.graf.korisnik_postoji(id_korisnika)
-            or self.graf.pronadji_korisnika_po_imenu(korisnicko_ime) is not None
-        ):
+        if self.validiraj_novog_korisnika(id_korisnika, korisnicko_ime) is not None:
             return False
 
         korisnik = User(id_korisnika, korisnicko_ime, biografija)
@@ -151,3 +165,20 @@ class SocialNetworkApp:
         self.trie.dodaj(korisnicko_ime, id_korisnika)
         self._osvezi_pagerank()
         return True
+
+    def validiraj_novog_korisnika(self, id_korisnika, korisnicko_ime):
+        if self.graf is None:
+            return "Skup podataka nije ucitan."
+        if id_korisnika <= 0:
+            return "ID korisnika mora biti ceo broj veci od nule."
+
+        korisnicko_ime = korisnicko_ime.strip()
+        if not korisnicko_ime:
+            return "Korisnicko ime ne sme biti prazno."
+        if "|" in korisnicko_ime:
+            return "Korisnicko ime ne sme da sadrzi znak |."
+        if self.graf.korisnik_postoji(id_korisnika):
+            return f"ID {id_korisnika} je vec zauzet."
+        if self.graf.pronadji_korisnika_po_imenu(korisnicko_ime) is not None:
+            return f"Korisnicko ime '{korisnicko_ime}' je vec zauzeto."
+        return None

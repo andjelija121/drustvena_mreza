@@ -73,28 +73,77 @@ def ucitaj_alfu() -> float:
         print("Alpha mora biti broj izmedju 0 i 1.")
 
 
-def ispisi_rezultat(result: Any) -> None:
-    if result is None:
-        print("Funkcionalnost jos nije implementirana.")
+def ucitaj_neprazan_tekst(prompt: str) -> str:
+    while True:
+        vrednost = input(prompt).strip()
+        if vrednost:
+            return vrednost
+        print("Unos ne sme biti prazan.")
+
+
+def formatiraj_korisnika(korisnik: Any, pagerank: float | None = None) -> str:
+    osnovno = f"{korisnik.username} (ID: {korisnik.id})"
+    if pagerank is not None:
+        osnovno += f" | PageRank: {pagerank:.8f}"
+    return osnovno
+
+
+def ispisi_korisnike(
+    korisnici: list,
+    aplikacija: SocialNetworkApp,
+    prikazi_biografiju: bool = False,
+) -> None:
+    if not korisnici:
+        print("Nema rezultata za zadati upit.")
         return
 
-    if isinstance(result, dict):
-        if not result:
-            print("Nema rezultata.")
-            return
-        for key, value in result.items():
-            print(f"{key}: {value}")
+    for pozicija, korisnik in enumerate(korisnici, start=1):
+        pagerank = aplikacija.graf.pagerank.get(korisnik.id, 0.0)
+        print(f"{pozicija}. {formatiraj_korisnika(korisnik, pagerank)}")
+        if prikazi_biografiju:
+            print(f"   Bio: {korisnik.bio}")
+
+
+def ispisi_najuticajnije(rezultati: list) -> None:
+    if not rezultati:
+        print("Nema korisnika za prikaz.")
         return
 
-    if isinstance(result, (list, tuple, set)):
-        if not result:
-            print("Nema rezultata.")
-            return
-        for item in result:
-            print(item)
+    for pozicija, (korisnik, pagerank) in enumerate(rezultati, start=1):
+        print(f"{pozicija}. {formatiraj_korisnika(korisnik, pagerank)}")
+
+
+def ispisi_tekstualne_predloge(
+    predlozi: list[str],
+    aplikacija: SocialNetworkApp,
+) -> None:
+    if not predlozi:
+        print("Nema odgovarajucih predloga.")
         return
 
-    print(result)
+    for pozicija, korisnicko_ime in enumerate(predlozi, start=1):
+        korisnik = aplikacija.graf.pronadji_korisnika_po_imenu(korisnicko_ime)
+        pagerank = (
+            aplikacija.graf.pagerank.get(korisnik.id, 0.0)
+            if korisnik is not None
+            else 0.0
+        )
+        print(f"{pozicija}. {korisnicko_ime} | PageRank: {pagerank:.8f}")
+
+
+def ispisi_nivoe_konekcija(
+    nivoi: dict[str, list],
+    aplikacija: SocialNetworkApp,
+) -> None:
+    if not nivoi:
+        print("Nema dostiznih korisnika do zadatog nivoa.")
+        return
+
+    for naziv_nivoa, korisnici in nivoi.items():
+        print(f"\n{naziv_nivoa}:")
+        for korisnik in korisnici:
+            pagerank = aplikacija.graf.pagerank.get(korisnik.id, 0.0)
+            print(f"  - {formatiraj_korisnika(korisnik, pagerank)}")
 
 
 def ispisi_istoriju_interakcija(istorija: list[dict] | None) -> None:
@@ -145,26 +194,38 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
         izbor = input("Izaberite opciju: ").strip()
 
         if izbor == "1":
-            tekst_pretrage = input("Korisnicko ime: ").strip()
+            tekst_pretrage = ucitaj_neprazan_tekst("Korisnicko ime: ")
             ogranicenje = ucitaj_pozitivan_ceo_broj("Broj rezultata [10]: ", podrazumevano=10)
-            ispisi_rezultat(aplikacija.pretrazi_po_korisnickom_imenu(tekst_pretrage, ogranicenje))
+            ispisi_korisnike(
+                aplikacija.pretrazi_po_korisnickom_imenu(tekst_pretrage, ogranicenje),
+                aplikacija,
+            )
 
         elif izbor == "2":
-            tekst_pretrage = input("Reci iz biografije: ").strip()
+            tekst_pretrage = ucitaj_neprazan_tekst("Reci iz biografije: ")
             ogranicenje = ucitaj_pozitivan_ceo_broj("Broj rezultata [10]: ", podrazumevano=10)
-            ispisi_rezultat(aplikacija.pretrazi_po_biografiji(tekst_pretrage, ogranicenje))
+            ispisi_korisnike(
+                aplikacija.pretrazi_po_biografiji(tekst_pretrage, ogranicenje),
+                aplikacija,
+                prikazi_biografiju=True,
+            )
 
         elif izbor == "3":
             ogranicenje = ucitaj_pozitivan_ceo_broj("Broj korisnika [10]: ", podrazumevano=10)
-            ispisi_rezultat(aplikacija.pronadji_najuticajnije_korisnike(ogranicenje))
+            ispisi_najuticajnije(
+                aplikacija.pronadji_najuticajnije_korisnike(ogranicenje)
+            )
 
         elif izbor == "4":
             id_pratioca = ucitaj_pozitivan_ceo_broj("ID korisnika koji prati: ")
             id_pracenog = ucitaj_pozitivan_ceo_broj("ID korisnika koji ce biti pracen: ")
-            if aplikacija.dodaj_pracenje(id_pratioca, id_pracenog):
+            greska = aplikacija.validiraj_pracenje(id_pratioca, id_pracenog)
+            if greska is not None:
+                print(f"Veza nije dodata: {greska}")
+            elif aplikacija.dodaj_pracenje(id_pratioca, id_pracenog):
                 print(f"Veza od {id_pratioca} do {id_pracenog} je uspesno dodata.")
             else:
-                print("Veza nije dodata. Proverite ID-jeve, postojecu vezu ili blokiranje.")
+                print("Veza nije dodata zbog neocekivane greske.")
 
         elif izbor == "5":
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
@@ -173,40 +234,72 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
             )
 
         elif izbor == "6":
-            prefiks = input("Pocetak korisnickog imena: ").strip()
+            prefiks = ucitaj_neprazan_tekst("Pocetak korisnickog imena: ")
             ogranicenje = ucitaj_pozitivan_ceo_broj("Broj predloga [5]: ", podrazumevano=5)
-            ispisi_rezultat(aplikacija.automatski_dovrsi(prefiks, ogranicenje))
+            ispisi_tekstualne_predloge(
+                aplikacija.automatski_dovrsi(prefiks, ogranicenje),
+                aplikacija,
+            )
 
         elif izbor == "7":
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
             alfa = ucitaj_alfu()
             ogranicenje = ucitaj_pozitivan_ceo_broj("Broj preporuka [10]: ", podrazumevano=10)
-            ispisi_preporuke(
-                aplikacija.preporuci_korisnike(
-                    id_korisnika,
-                    alfa,
-                    ogranicenje,
+            if not aplikacija.graf.korisnik_postoji(id_korisnika):
+                print(f"Korisnik sa ID-jem {id_korisnika} ne postoji.")
+            else:
+                ispisi_preporuke(
+                    aplikacija.preporuci_korisnike(
+                        id_korisnika,
+                        alfa,
+                        ogranicenje,
+                    )
                 )
-            )
 
         elif izbor == "8":
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID pocetnog korisnika: ")
             maksimalni_nivo = ucitaj_pozitivan_ceo_broj("Maksimalni nivo: ")
-            ispisi_rezultat(aplikacija.pronadji_nivoe_konekcija(id_korisnika, maksimalni_nivo))
+            if not aplikacija.graf.korisnik_postoji(id_korisnika):
+                print(f"Korisnik sa ID-jem {id_korisnika} ne postoji.")
+            else:
+                ispisi_nivoe_konekcija(
+                    aplikacija.pronadji_nivoe_konekcija(
+                        id_korisnika,
+                        maksimalni_nivo,
+                    ),
+                    aplikacija,
+                )
 
         elif izbor == "9":
-            korisnicko_ime = input("Pogresno uneto korisnicko ime: ").strip()
+            korisnicko_ime = ucitaj_neprazan_tekst(
+                "Pogresno uneto korisnicko ime: "
+            )
             ogranicenje = ucitaj_pozitivan_ceo_broj("Broj predloga [5]: ", podrazumevano=5)
-            ispisi_rezultat(aplikacija.predlozi_slicna_imena(korisnicko_ime, ogranicenje))
+            if aplikacija.graf.pronadji_korisnika_po_imenu(korisnicko_ime):
+                print("Uneto korisnicko ime vec postoji; predlog nije potreban.")
+            else:
+                ispisi_tekstualne_predloge(
+                    aplikacija.predlozi_slicna_imena(
+                        korisnicko_ime,
+                        ogranicenje,
+                    ),
+                    aplikacija,
+                )
 
         elif izbor == "10":
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID novog korisnika: ")
-            korisnicko_ime = input("Korisnicko ime: ").strip()
+            korisnicko_ime = ucitaj_neprazan_tekst("Korisnicko ime: ")
             biografija = input("Biografija: ").strip()
-            if aplikacija.dodaj_korisnika(id_korisnika, korisnicko_ime, biografija):
+            greska = aplikacija.validiraj_novog_korisnika(
+                id_korisnika,
+                korisnicko_ime,
+            )
+            if greska is not None:
+                print(f"Korisnik nije dodat: {greska}")
+            elif aplikacija.dodaj_korisnika(id_korisnika, korisnicko_ime, biografija):
                 print(f"Korisnik {korisnicko_ime} je uspesno dodat.")
             else:
-                print("Korisnik nije dodat. ID ili korisnicko ime vec postoji.")
+                print("Korisnik nije dodat zbog neocekivane greske.")
 
         elif izbor == "0":
             print("Dovidjenja!")
@@ -226,4 +319,7 @@ def glavna() -> None:
 
 
 if __name__ == "__main__":
-    glavna()
+    try:
+        glavna()
+    except (EOFError, KeyboardInterrupt):
+        print("\nProgram je prekinut. Dovidjenja!")
