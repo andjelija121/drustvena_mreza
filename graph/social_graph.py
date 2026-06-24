@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class SocialGraph:
 
     def __init__(self):
@@ -127,5 +130,31 @@ class SocialGraph:
         return dogadjaji
 
     def bfs_nivoi(self, pocetni_id, maksimalni_nivo):
-        # TODO: Bice implementirano u celini za BFS.
-        return {}
+        if (
+            pocetni_id not in self.korisnici_po_id
+            or maksimalni_nivo <= 0
+        ):
+            return {}
+
+        red = deque([(pocetni_id, 0)])
+        poseceni = {pocetni_id}
+        korisnici_po_nivou = {}
+
+        while red:
+            trenutni_id, trenutni_nivo = red.popleft()
+
+            if trenutni_nivo >= maksimalni_nivo:
+                continue
+
+            sledeci_nivo = trenutni_nivo + 1
+            for praceni_id in sorted(self.pronadji_pracene(trenutni_id)):
+                if praceni_id in poseceni:
+                    continue
+
+                poseceni.add(praceni_id)
+                red.append((praceni_id, sledeci_nivo))
+                korisnici_po_nivou.setdefault(sledeci_nivo, []).append(
+                    praceni_id
+                )
+
+        return korisnici_po_nivou

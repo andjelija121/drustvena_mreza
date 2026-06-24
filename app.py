@@ -7,6 +7,7 @@ from models.user import User
 from recommendations.recommender import Recommender
 from search.search_engine import Pretrazivac
 from structures.trie import Trie
+from utils.suggestions import predlozi_slicna_imena
 
 
 class SocialNetworkApp:
@@ -104,10 +105,33 @@ class SocialNetworkApp:
         )
 
     def pronadji_nivoe_konekcija(self, id_korisnika, maksimalni_nivo):
-        pass
+        if self.graf is None:
+            return {}
+
+        nivoi = self.graf.bfs_nivoi(id_korisnika, maksimalni_nivo)
+        return {
+            f"Nivo {nivo}": [
+                self.graf.pronadji_korisnika(id_korisnika)
+                for id_korisnika in korisnici
+            ]
+            for nivo, korisnici in nivoi.items()
+        }
 
     def predlozi_slicna_imena(self, korisnicko_ime, ogranicenje=5):
-        pass
+        if self.graf is None:
+            return []
+
+        korisnici = list(self.graf.korisnici_po_id.values())
+        pagerank_po_imenu = {
+            korisnik.username: self.graf.pagerank.get(korisnik.id, 0.0)
+            for korisnik in korisnici
+        }
+        return predlozi_slicna_imena(
+            korisnicko_ime,
+            [korisnik.username for korisnik in korisnici],
+            ogranicenje,
+            pagerank_po_imenu,
+        )
 
     def dodaj_korisnika(self, id_korisnika, korisnicko_ime, biografija):
         if self.graf is None or self.pretrazivac is None:
