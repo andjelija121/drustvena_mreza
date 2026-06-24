@@ -5,6 +5,7 @@ from algorithms.pagerank import (
 from data_access.loader import ucitaj_skup_podataka
 from models.user import User
 from search.search_engine import Pretrazivac
+from structures.trie import Trie
 
 
 class SocialNetworkApp:
@@ -12,11 +13,15 @@ class SocialNetworkApp:
     def __init__(self):
         self.graf = None
         self.pretrazivac = None
+        self.trie = Trie()
 
     def ucitaj_skup_podataka(self, putanja_do_skupa):
         self.graf = ucitaj_skup_podataka(putanja_do_skupa)
         self.graf.pagerank = izracunaj_pagerank(self.graf)
         self.pretrazivac = Pretrazivac(self.graf)
+        self.trie = Trie()
+        for korisnik in self.graf.korisnici_po_id.values():
+            self.trie.dodaj(korisnik.username, korisnik.id)
 
     def _osvezi_pagerank(self):
         if self.graf is None:
@@ -76,7 +81,14 @@ class SocialNetworkApp:
         return self.graf.pronadji_istoriju_interakcija(id_korisnika)
 
     def automatski_dovrsi(self, prefiks, ogranicenje=5):
-        pass
+        if self.graf is None:
+            return []
+
+        return self.trie.automatski_dovrsi(
+            prefiks,
+            self.graf.pagerank,
+            ogranicenje,
+        )
 
     def preporuci_korisnike(self, id_korisnika, alfa, ogranicenje=10):
         pass
@@ -102,5 +114,6 @@ class SocialNetworkApp:
         korisnik = User(id_korisnika, korisnicko_ime, biografija)
         self.graf.dodaj_korisnika(korisnik)
         self.pretrazivac.dodaj_korisnika_u_indeks(id_korisnika)
+        self.trie.dodaj(korisnicko_ime, id_korisnika)
         self._osvezi_pagerank()
         return True
