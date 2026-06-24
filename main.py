@@ -123,6 +123,22 @@ def ispisi_istoriju_interakcija(istorija: list[dict] | None) -> None:
             )
 
 
+def ispisi_preporuke(preporuke: list) -> None:
+    if not preporuke:
+        print("Nema preporuka za ovog korisnika.")
+        return
+
+    for pozicija, (korisnik, rezultat, ppr, jaccard) in enumerate(
+        preporuke,
+        start=1,
+    ):
+        print(
+            f"{pozicija}. {korisnik.username} (ID: {korisnik.id}) | "
+            f"rezultat={rezultat:.6f}, PPR={ppr:.6f}, "
+            f"Jaccard={jaccard:.6f}"
+        )
+
+
 def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
     while True:
         ispisi_meni()
@@ -165,7 +181,13 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
             alfa = ucitaj_alfu()
             ogranicenje = ucitaj_pozitivan_ceo_broj("Broj preporuka [10]: ", podrazumevano=10)
-            ispisi_rezultat(aplikacija.preporuci_korisnike(id_korisnika, alfa, ogranicenje))
+            ispisi_preporuke(
+                aplikacija.preporuci_korisnike(
+                    id_korisnika,
+                    alfa,
+                    ogranicenje,
+                )
+            )
 
         elif izbor == "8":
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID pocetnog korisnika: ")

@@ -4,6 +4,7 @@ from algorithms.pagerank import (
 )
 from data_access.loader import ucitaj_skup_podataka
 from models.user import User
+from recommendations.recommender import Recommender
 from search.search_engine import Pretrazivac
 from structures.trie import Trie
 
@@ -13,12 +14,14 @@ class SocialNetworkApp:
     def __init__(self):
         self.graf = None
         self.pretrazivac = None
+        self.recommender = None
         self.trie = Trie()
 
     def ucitaj_skup_podataka(self, putanja_do_skupa):
         self.graf = ucitaj_skup_podataka(putanja_do_skupa)
         self.graf.pagerank = izracunaj_pagerank(self.graf)
         self.pretrazivac = Pretrazivac(self.graf)
+        self.recommender = Recommender(self.graf)
         self.trie = Trie()
         for korisnik in self.graf.korisnici_po_id.values():
             self.trie.dodaj(korisnik.username, korisnik.id)
@@ -91,7 +94,14 @@ class SocialNetworkApp:
         )
 
     def preporuci_korisnike(self, id_korisnika, alfa, ogranicenje=10):
-        pass
+        if self.recommender is None:
+            return []
+
+        return self.recommender.preporuci(
+            id_korisnika,
+            alfa,
+            ogranicenje,
+        )
 
     def pronadji_nivoe_konekcija(self, id_korisnika, maksimalni_nivo):
         pass

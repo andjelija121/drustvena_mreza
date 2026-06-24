@@ -84,7 +84,67 @@ def izracunaj_personalizovani_pagerank(
     faktor_prigusenja=0.85,
     epsilon=1e-6,
 ):
-    pass
+    if not 0.0 <= faktor_prigusenja <= 1.0:
+        raise ValueError("Faktor prigusenja mora biti izmedju 0 i 1.")
+    if epsilon <= 0:
+        raise ValueError("Epsilon mora biti veci od nule.")
+    if not graf.korisnik_postoji(pocetni_id_korisnika):
+        raise ValueError("Pocetni korisnik ne postoji.")
+
+    ids = list(graf.korisnici_po_id)
+    if not ids:
+        return {}
+
+    rezultati = {
+        id_korisnika: (
+            1.0 if id_korisnika == pocetni_id_korisnika else 0.0
+        )
+        for id_korisnika in ids
+    }
+
+    for _ in range(10_000):
+        dangling_masa = sum(
+            rezultati[id_korisnika]
+            for id_korisnika in ids
+            if graf.pronadji_izlazni_stepen(id_korisnika) == 0
+        )
+
+        novi_rezultati = {}
+        for id_korisnika in ids:
+            dolazni_doprinos = 0.0
+            for id_pratioca in graf.pronadji_pratioce(id_korisnika):
+                izlazni_stepen = graf.pronadji_izlazni_stepen(id_pratioca)
+                if izlazni_stepen > 0:
+                    dolazni_doprinos += (
+                        rezultati[id_pratioca] / izlazni_stepen
+                    )
+
+            novi_rezultati[id_korisnika] = (
+                faktor_prigusenja * dolazni_doprinos
+            )
+
+        novi_rezultati[pocetni_id_korisnika] += (
+            1.0
+            - faktor_prigusenja
+            + faktor_prigusenja * dangling_masa
+        )
+
+        razlika = sum(
+            abs(novi_rezultati[id_korisnika] - rezultati[id_korisnika])
+            for id_korisnika in ids
+        )
+        rezultati = novi_rezultati
+        if razlika < epsilon:
+            break
+
+    zbir = sum(rezultati.values())
+    if zbir == 0:
+        return rezultati
+
+    return {
+        id_korisnika: rezultat / zbir
+        for id_korisnika, rezultat in rezultati.items()
+    }
 
 
 def pronadji_najbolje_korisnike(
