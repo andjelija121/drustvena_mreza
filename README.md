@@ -4,14 +4,6 @@ Python konzolna aplikacija koja simulira deo drustvene mreze. Ucitava korisnike,
 follow veze i blokiranja, pa omogucava pretragu, rangiranje, preporuke i obilazak
 grafa.
 
-## Pokretanje
-
-Potreban je Python 3.10+. Nisu koriscene spoljne biblioteke.
-
-```powershell
-python main.py
-```
-
 Program na pocetku trazi da se izabere skup podataka: `small`, `medium` ili `full`.
 
 ## Ulazni fajlovi
