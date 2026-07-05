@@ -1,13 +1,12 @@
-from utils.text_processing import podeli_na_reci
+from pomocno.obrada_teksta import podeli_na_reci
 
 
-class User:
+class Korisnik:
     def __init__(self, id_korisnika, korisnicko_ime, biografija):
         self.id = id_korisnika
         self.username = korisnicko_ime
         self.bio = biografija
         self.bio_words = podeli_na_reci(biografija)
-
     def to_dict(self):
         return {
             "id": self.id,
@@ -17,4 +16,4 @@ class User:
         }
 
     def __repr__(self):
-        return f"User(id={self.id}, username='{self.username}')"
+        return f"Korisnik(id={self.id}, username='{self.username}')"

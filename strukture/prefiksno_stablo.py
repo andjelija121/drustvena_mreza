@@ -1,27 +1,27 @@
 import heapq
 
 
-class TrieNode:
-    def __init__(self) -> None:
-        self.deca: dict[str, TrieNode] = {}
+class CvorPrefiksnogStabla:
+    def __init__(self):
+        self.deca = {}
         self.kraj_reci = False
-        self.korisnicko_ime: str | None = None
-        self.id_korisnika: int | None = None
+        self.korisnicko_ime = None
+        self.id_korisnika = None
 
 
-class Trie:
-    def __init__(self) -> None:
-        self.koren = TrieNode()
+class PrefiksnoStablo:
+    def __init__(self):
+        self.koren = CvorPrefiksnogStabla()
 
-    def dodaj(self, korisnicko_ime: str, id_korisnika: int) -> None:
+    def dodaj(self, korisnicko_ime, id_korisnika):
         korisnicko_ime = korisnicko_ime.strip()
         if not korisnicko_ime:
             return
 
         cvor = self.koren
-        for znak in korisnicko_ime.casefold():
+        for znak in korisnicko_ime.lower():
             if znak not in cvor.deca:
-                cvor.deca[znak] = TrieNode()
+                cvor.deca[znak] = CvorPrefiksnogStabla()
             cvor = cvor.deca[znak]
 
         cvor.kraj_reci = True
@@ -29,20 +29,20 @@ class Trie:
         cvor.id_korisnika = id_korisnika
 
     def automatski_dovrsi(
-        self, prefiks: str, pagerank_rezultati: dict[int, float], limit: int = 5
-    ) -> list[str]:
+        self, prefiks, pagerank_rezultati, limit=5
+    ):
         prefiks = prefiks.strip()
         if not prefiks or limit <= 0:
             return []
 
         cvor = self.koren
-        normalizovan_prefiks = prefiks.casefold()
+        normalizovan_prefiks = prefiks.lower()
         for znak in normalizovan_prefiks:
             cvor = cvor.deca.get(znak)
             if cvor is None:
                 return []
 
-        zavrseci: list[tuple[str, int]] = []
+        zavrseci = []
         self._sakupi_reci(cvor, normalizovan_prefiks, zavrseci)
 
         rangirani = (
@@ -61,10 +61,10 @@ class Trie:
 
     def _sakupi_reci(
         self,
-        cvor: TrieNode,
-        prefiks: str,
-        rezultati: list[tuple[str, int]],
-    ) -> None:
+        cvor,
+        prefiks,
+        rezultati,
+    ):
         if (
             cvor.kraj_reci
             and cvor.korisnicko_ime is not None

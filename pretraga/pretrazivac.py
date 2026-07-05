@@ -1,6 +1,6 @@
 import heapq
 
-from utils.text_processing import podeli_na_reci
+from pomocno.obrada_teksta import podeli_na_reci
 
 
 class Pretrazivac:

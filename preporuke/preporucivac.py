@@ -1,18 +1,17 @@
 import heapq
 
-from algorithms.pagerank import izracunaj_personalizovani_pagerank
-from graph.social_graph import SocialGraph
-from utils.text_processing import podeli_na_reci
+from algoritmi.pagerank import izracunaj_personalizovani_pagerank
+from pomocno.obrada_teksta import podeli_na_reci
 
 
-class Recommender:
+class Preporucivac:
 
-    def __init__(self, graf: SocialGraph) -> None:
+    def __init__(self, graf):
         self.graf = graf
 
     def izracunaj_jaccard_slicnost(
-        self, prva_biografija: str, druga_biografija: str
-    ) -> float:
+        self, prva_biografija, druga_biografija
+    ):
         prve_reci = set(podeli_na_reci(prva_biografija))
         druge_reci = set(podeli_na_reci(druga_biografija))
         unija = prve_reci | druge_reci
@@ -23,8 +22,8 @@ class Recommender:
         return len(prve_reci & druge_reci) / len(unija)
 
     def preporuci(
-        self, id_korisnika: int, alfa: float = 0.5, limit: int = 10
-    ) -> list:
+        self, id_korisnika, alfa=0.5, limit=10
+    ):
         if not 0.0 <= alfa <= 1.0:
             raise ValueError("Alfa mora biti izmedju 0 i 1.")
         if limit <= 0 or not self.graf.korisnik_postoji(id_korisnika):

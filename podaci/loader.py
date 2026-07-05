@@ -1,5 +1,5 @@
-from graph.social_graph import SocialGraph
-from models.user import User
+from graph.drustveni_graf import DrustveniGraf
+from modeli.korisnik import Korisnik
 
 
 def ucitaj_korisnike(putanja, graf):
@@ -14,7 +14,7 @@ def ucitaj_korisnike(putanja, graf):
                 continue
 
             id_korisnika, korisnicko_ime, biografija = delovi
-            korisnik = User(int(id_korisnika), korisnicko_ime, biografija)
+            korisnik = Korisnik(int(id_korisnika), korisnicko_ime, biografija)
             graf.dodaj_korisnika(korisnik)
 
 
@@ -53,8 +53,7 @@ def ucitaj_blokiranja(putanja, graf):
 
 
 def ucitaj_skup_podataka(putanja_do_skupa):
-    graf = SocialGraph()
-
+    graf = DrustveniGraf()
     ucitaj_korisnike(putanja_do_skupa / "users.txt", graf)
     ucitaj_konekcije(putanja_do_skupa / "connections.txt", graf)
     ucitaj_blokiranja(putanja_do_skupa / "blocked.txt", graf)

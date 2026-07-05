@@ -32,7 +32,6 @@ def izracunaj_pagerank(
             rezultati = {id_korisnika: 1.0 / broj_korisnika for id_korisnika in ids}
     else:
         rezultati = {id_korisnika: 1.0 / broj_korisnika for id_korisnika in ids}
-
     osnovni_doprinos = (1.0 - faktor_prigusenja) / broj_korisnika
 
 
@@ -108,7 +107,6 @@ def izracunaj_personalizovani_pagerank(
             for id_korisnika in ids
             if graf.pronadji_izlazni_stepen(id_korisnika) == 0
         )
-
         novi_rezultati = {}
         for id_korisnika in ids:
             dolazni_doprinos = 0.0
@@ -136,7 +134,6 @@ def izracunaj_personalizovani_pagerank(
         rezultati = novi_rezultati
         if razlika < epsilon:
             break
-
     zbir = sum(rezultati.values())
     if zbir == 0:
         return rezultati
@@ -153,7 +150,6 @@ def pronadji_najbolje_korisnike(
 ):
     if limit <= 0:
         return []
-
     rangirani = (
         (rezultat, -id_korisnika, id_korisnika)
         for id_korisnika, rezultat in pagerank_rezultati.items()

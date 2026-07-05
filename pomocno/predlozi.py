@@ -1,9 +1,7 @@
 import heapq
-from collections.abc import Mapping
 
 
-def _levenshtein_udaljenost(prvi_tekst: str, drugi_tekst: str) -> int:
-    """Izracunava edit distance koristeci dinamicko programiranje."""
+def _levenshtein_udaljenost(prvi_tekst, drugi_tekst):
     if len(prvi_tekst) < len(drugi_tekst):
         prvi_tekst, drugi_tekst = drugi_tekst, prvi_tekst
 
@@ -28,27 +26,27 @@ def _levenshtein_udaljenost(prvi_tekst: str, drugi_tekst: str) -> int:
 
 
 def predlozi_slicna_imena(
-    korisnicko_ime: str,
-    postojeca_imena: list[str],
-    limit: int = 5,
-    pagerank_po_imenu: Mapping[str, float] | None = None,
-) -> list[str]:
+    korisnicko_ime,
+    postojeca_imena,
+    limit=5,
+    pagerank_po_imenu=None,
+):
     korisnicko_ime = korisnicko_ime.strip()
     if not korisnicko_ime or limit <= 0:
         return []
 
-    normalizovano_trazeno_ime = korisnicko_ime.casefold()
+    normalizovano_trazeno_ime = korisnicko_ime.lower()
     pagerank_po_imenu = pagerank_po_imenu or {}
     normalizovan_pagerank = {
-        ime.casefold(): rezultat
+        ime.lower(): rezultat
         for ime, rezultat in pagerank_po_imenu.items()
     }
 
-    jedinstvena_imena: dict[str, str] = {}
+    jedinstvena_imena = {}
     for postojece_ime in postojeca_imena:
         ocisceno_ime = postojece_ime.strip()
         if ocisceno_ime:
-            jedinstvena_imena.setdefault(ocisceno_ime.casefold(), ocisceno_ime)
+            jedinstvena_imena.setdefault(ocisceno_ime.lower(), ocisceno_ime)
 
     if normalizovano_trazeno_ime in jedinstvena_imena:
         return []

@@ -1,47 +1,46 @@
 from pathlib import Path
-from typing import Any
 
-from app import SocialNetworkApp
+from app import AplikacijaDrustveneMreze
 
 
 DATASET_ROOT = Path(__file__).resolve().parent / "dataset"
 
 
-def ispisi_meni() -> None:
+def ispisi_meni():
     print("\n" + "=" * 55)
     print("                 DRUSTVENA MREZA")
     print("=" * 55)
-    print(" 1. Pretraga korisnika po korisnickom imenu")
-    print(" 2. Pretraga korisnika po recima iz biografije")
-    print(" 3. Prikaz najuticajnijih korisnika")
-    print(" 4. Dodavanje nove follow veze")
-    print(" 5. Prikaz istorije interakcija korisnika")
-    print(" 6. Autocomplete korisnickog imena")
-    print(" 7. Hibridne preporuke korisnika")
-    print(" 8. BFS - prikaz nivoa konekcija")
-    print(" 9. Did you mean - predlog slicnih imena")
-    print("10. Dodavanje novog korisnika")
-    print(" 0. Izlazak iz programa")
+    print(" 1. Nadji korisnika po imenu")
+    print(" 2. Pretrazi biografije")
+    print(" 3. Najuticajniji korisnici")
+    print(" 4. Dodaj pracenje")
+    print(" 5. Istorija pracenja")
+    print(" 6. Dovrsi korisnicko ime")
+    print(" 7. Preporuci korisnike")
+    print(" 8. Prikazi nivoe konekcija")
+    print(" 9. Predlozi slicno ime")
+    print("10. Dodaj korisnika")
+    print(" 0. Izlaz")
     print("-" * 55)
 
 
-def izaberi_skup_podataka() -> str:
+def izaberi_skup_podataka():
     available = {"1": "small", "2": "medium", "3": "full"}
 
     while True:
         print("Izaberite skup podataka:")
-        print("1. Small  (preporucen za razvoj)")
-        print("2. Medium (preporucen za demonstraciju)")
-        print("3. Full   (provera performansi)")
+        print("1. Mali   (najbrzi za probu)")
+        print("2. Srednji (dobar za prikaz rada)")
+        print("3. Ceo    (za proveru brzine)")
         choice = input("Izbor: ").strip()
 
         if choice in available:
             return available[choice]
 
-        print("Neispravan izbor. Pokusajte ponovo.\n")
+        print("Nema te opcije, probajte ponovo.\n")
 
 
-def ucitaj_pozitivan_ceo_broj(prompt: str, podrazumevano: int | None = None) -> int:
+def ucitaj_pozitivan_ceo_broj(prompt, podrazumevano=None):
     while True:
         raw_value = input(prompt).strip()
         if not raw_value and podrazumevano is not None:
@@ -54,10 +53,10 @@ def ucitaj_pozitivan_ceo_broj(prompt: str, podrazumevano: int | None = None) -> 
         except ValueError:
             pass
 
-        print("Unesite ceo broj veci od nule.")
+        print("Unesite broj veci od nule.")
 
 
-def ucitaj_alfu() -> float:
+def ucitaj_alfu():
     while True:
         raw_value = input("Alpha [0-1, podrazumevano 0.5]: ").strip()
         if not raw_value:
@@ -70,18 +69,18 @@ def ucitaj_alfu() -> float:
         except ValueError:
             pass
 
-        print("Alpha mora biti broj izmedju 0 i 1.")
+        print("Alpha mora biti izmedju 0 i 1.")
 
 
-def ucitaj_neprazan_tekst(prompt: str) -> str:
+def ucitaj_neprazan_tekst(prompt):
     while True:
         vrednost = input(prompt).strip()
         if vrednost:
             return vrednost
-        print("Unos ne sme biti prazan.")
+        print("Unos ne moze biti prazan.")
 
 
-def formatiraj_korisnika(korisnik: Any, pagerank: float | None = None) -> str:
+def formatiraj_korisnika(korisnik, pagerank=None):
     osnovno = f"{korisnik.username} (ID: {korisnik.id})"
     if pagerank is not None:
         osnovno += f" | PageRank: {pagerank:.8f}"
@@ -89,22 +88,22 @@ def formatiraj_korisnika(korisnik: Any, pagerank: float | None = None) -> str:
 
 
 def ispisi_korisnike(
-    korisnici: list,
-    aplikacija: SocialNetworkApp,
-    prikazi_biografiju: bool = False,
-) -> None:
+    korisnici,
+    aplikacija,
+    prikazi_biografiju=False,
+):
     if not korisnici:
-        print("Nema rezultata za zadati upit.")
+        print("Nista nije nadjeno za taj unos.")
         return
 
     for pozicija, korisnik in enumerate(korisnici, start=1):
         pagerank = aplikacija.graf.pagerank.get(korisnik.id, 0.0)
         print(f"{pozicija}. {formatiraj_korisnika(korisnik, pagerank)}")
         if prikazi_biografiju:
-            print(f"   Bio: {korisnik.bio}")
+            print(f"   Biografija: {korisnik.bio}")
 
 
-def ispisi_najuticajnije(rezultati: list) -> None:
+def ispisi_najuticajnije(rezultati):
     if not rezultati:
         print("Nema korisnika za prikaz.")
         return
@@ -114,11 +113,11 @@ def ispisi_najuticajnije(rezultati: list) -> None:
 
 
 def ispisi_tekstualne_predloge(
-    predlozi: list[str],
-    aplikacija: SocialNetworkApp,
-) -> None:
+    predlozi,
+    aplikacija,
+):
     if not predlozi:
-        print("Nema odgovarajucih predloga.")
+        print("Nema dobrih predloga.")
         return
 
     for pozicija, korisnicko_ime in enumerate(predlozi, start=1):
@@ -132,11 +131,11 @@ def ispisi_tekstualne_predloge(
 
 
 def ispisi_nivoe_konekcija(
-    nivoi: dict[str, list],
-    aplikacija: SocialNetworkApp,
-) -> None:
+    nivoi,
+    aplikacija,
+):
     if not nivoi:
-        print("Nema dostiznih korisnika do zadatog nivoa.")
+        print("Nema korisnika do tog nivoa.")
         return
 
     for naziv_nivoa, korisnici in nivoi.items():
@@ -146,13 +145,13 @@ def ispisi_nivoe_konekcija(
             print(f"  - {formatiraj_korisnika(korisnik, pagerank)}")
 
 
-def ispisi_istoriju_interakcija(istorija: list[dict] | None) -> None:
+def ispisi_istoriju_interakcija(istorija):
     if istorija is None:
-        print("Korisnik sa unetim ID-jem ne postoji.")
+        print("Korisnik sa tim ID-jem ne postoji.")
         return
 
     if not istorija:
-        print("Korisnik nema evidentiranih interakcija.")
+        print("Za ovog korisnika jos nema novih pracenja.")
         return
 
     for dogadjaj in istorija:
@@ -172,7 +171,7 @@ def ispisi_istoriju_interakcija(istorija: list[dict] | None) -> None:
             )
 
 
-def ispisi_preporuke(preporuke: list) -> None:
+def ispisi_preporuke(preporuke):
     if not preporuke:
         print("Nema preporuka za ovog korisnika.")
         return
@@ -188,7 +187,7 @@ def ispisi_preporuke(preporuke: list) -> None:
         )
 
 
-def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
+def pokreni_meni(aplikacija):
     while True:
         ispisi_meni()
         izbor = input("Izaberite opciju: ").strip()
@@ -218,14 +217,14 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
 
         elif izbor == "4":
             id_pratioca = ucitaj_pozitivan_ceo_broj("ID korisnika koji prati: ")
-            id_pracenog = ucitaj_pozitivan_ceo_broj("ID korisnika koji ce biti pracen: ")
+            id_pracenog = ucitaj_pozitivan_ceo_broj("ID korisnika koga prati: ")
             greska = aplikacija.validiraj_pracenje(id_pratioca, id_pracenog)
             if greska is not None:
                 print(f"Veza nije dodata: {greska}")
             elif aplikacija.dodaj_pracenje(id_pratioca, id_pracenog):
-                print(f"Veza od {id_pratioca} do {id_pracenog} je uspesno dodata.")
+                print(f"Dodato je pracenje: {id_pratioca} -> {id_pracenog}.")
             else:
-                print("Veza nije dodata zbog neocekivane greske.")
+                print("Veza nije dodata.")
 
         elif izbor == "5":
             id_korisnika = ucitaj_pozitivan_ceo_broj("ID korisnika: ")
@@ -271,12 +270,10 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
                 )
 
         elif izbor == "9":
-            korisnicko_ime = ucitaj_neprazan_tekst(
-                "Pogresno uneto korisnicko ime: "
-            )
+            korisnicko_ime = ucitaj_neprazan_tekst("Uneto korisnicko ime: ")
             ogranicenje = ucitaj_pozitivan_ceo_broj("Broj predloga [5]: ", podrazumevano=5)
             if aplikacija.graf.pronadji_korisnika_po_imenu(korisnicko_ime):
-                print("Uneto korisnicko ime vec postoji; predlog nije potreban.")
+                print("To korisnicko ime vec postoji, nema potrebe za predlogom.")
             else:
                 ispisi_tekstualne_predloge(
                     aplikacija.predlozi_slicna_imena(
@@ -297,23 +294,23 @@ def pokreni_meni(aplikacija: SocialNetworkApp) -> None:
             if greska is not None:
                 print(f"Korisnik nije dodat: {greska}")
             elif aplikacija.dodaj_korisnika(id_korisnika, korisnicko_ime, biografija):
-                print(f"Korisnik {korisnicko_ime} je uspesno dodat.")
+                print(f"Korisnik {korisnicko_ime} je dodat.")
             else:
-                print("Korisnik nije dodat zbog neocekivane greske.")
+                print("Korisnik nije dodat.")
 
         elif izbor == "0":
             print("Dovidjenja!")
             break
 
         else:
-            print("Neispravna opcija. Pokusajte ponovo.")
+            print("Nema te opcije, probajte ponovo.")
 
 
-def glavna() -> None:
+def glavna():
     dataset_size = izaberi_skup_podataka()
     dataset_path = DATASET_ROOT / dataset_size
 
-    aplikacija = SocialNetworkApp()
+    aplikacija = AplikacijaDrustveneMreze()
     aplikacija.ucitaj_skup_podataka(dataset_path)
     pokreni_meni(aplikacija)
 

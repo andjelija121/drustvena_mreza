@@ -1,19 +1,19 @@
 from collections import deque
 
 
-class SocialGraph:
+class DrustveniGraf:
 
     def __init__(self):
         self.korisnici_po_id = {}
-        self.korisnici_po_username = {}
+        self.korisnici_po_username ={}
         self.prati = {}
         self.pratioci = {}
         self.izlazni_stepen = {}
         self.blokirao = {}
-        self.blokiran_od = {}
-        self.pagerank = {}
+        self.blokiran_od ={}
+        self.pagerank ={}
         self.istorija = []
-        self.sledeci_redni_broj_dogadjaja = 1
+        self.sledeci_redni_broj_dogadjaja =1
 
     def dodaj_korisnika(self, korisnik):
         self.korisnici_po_id[korisnik.id] = korisnik
@@ -30,10 +30,8 @@ class SocialGraph:
 
         if id_pratioca == id_pracenog:
             return False
-
         if self.postoji_blokiranje(id_pratioca, id_pracenog):
             return False
-
         if id_pracenog in self.prati.setdefault(id_pratioca, set()):
             return False
 
@@ -57,7 +55,6 @@ class SocialGraph:
     def dodaj_blokiranje(self, id_blokera, id_blokiranog):
         if id_blokera not in self.korisnici_po_id or id_blokiranog not in self.korisnici_po_id:
             return
-
         self.blokirao.setdefault(id_blokera, set()).add(id_blokiranog)
         self.blokiran_od.setdefault(id_blokiranog, set()).add(id_blokera)
 
@@ -110,10 +107,10 @@ class SocialGraph:
             id_pracenog = dogadjaj["id_pracenog"]
 
             if id_korisnika == id_pratioca:
-                drugi_korisnik = self.pronadji_korisnika(id_pracenog)
+                drugi_korisnik =self.pronadji_korisnika(id_pracenog)
                 smer = "zapratio"
             elif id_korisnika == id_pracenog:
-                drugi_korisnik = self.pronadji_korisnika(id_pratioca)
+                drugi_korisnik =self.pronadji_korisnika(id_pratioca)
                 smer = "zapratio_njega"
             else:
                 continue
@@ -135,7 +132,6 @@ class SocialGraph:
             or maksimalni_nivo <= 0
         ):
             return {}
-
         red = deque([(pocetni_id, 0)])
         poseceni = {pocetni_id}
         korisnici_po_nivou = {}

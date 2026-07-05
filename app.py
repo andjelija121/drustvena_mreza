@@ -1,31 +1,31 @@
-from algorithms.pagerank import (
+from algoritmi.pagerank import (
     izracunaj_pagerank,
     pronadji_najbolje_korisnike,
 )
-from data_access.loader import ucitaj_skup_podataka
-from models.user import User
-from recommendations.recommender import Recommender
-from search.search_engine import Pretrazivac
-from structures.trie import Trie
-from utils.suggestions import predlozi_slicna_imena
+from modeli.korisnik import Korisnik
+from podaci.loader import ucitaj_skup_podataka
+from pomocno.predlozi import predlozi_slicna_imena
+from preporuke.preporucivac import Preporucivac
+from pretraga.pretrazivac import Pretrazivac
+from strukture.prefiksno_stablo import PrefiksnoStablo
 
 
-class SocialNetworkApp:
+class AplikacijaDrustveneMreze:
 
     def __init__(self):
         self.graf = None
         self.pretrazivac = None
-        self.recommender = None
-        self.trie = Trie()
+        self.preporucivac = None
+        self.prefiksno_stablo = PrefiksnoStablo()
 
     def ucitaj_skup_podataka(self, putanja_do_skupa):
         self.graf = ucitaj_skup_podataka(putanja_do_skupa)
         self.graf.pagerank = izracunaj_pagerank(self.graf)
         self.pretrazivac = Pretrazivac(self.graf)
-        self.recommender = Recommender(self.graf)
-        self.trie = Trie()
+        self.preporucivac = Preporucivac(self.graf)
+        self.prefiksno_stablo = PrefiksnoStablo()
         for korisnik in self.graf.korisnici_po_id.values():
-            self.trie.dodaj(korisnik.username, korisnik.id)
+            self.prefiksno_stablo.dodaj(korisnik.username, korisnik.id)
 
     def _osvezi_pagerank(self):
         if self.graf is None:
@@ -106,17 +106,17 @@ class SocialNetworkApp:
         if self.graf is None:
             return []
 
-        return self.trie.automatski_dovrsi(
+        return self.prefiksno_stablo.automatski_dovrsi(
             prefiks,
             self.graf.pagerank,
             ogranicenje,
         )
 
     def preporuci_korisnike(self, id_korisnika, alfa, ogranicenje=10):
-        if self.recommender is None:
+        if self.preporucivac is None:
             return []
 
-        return self.recommender.preporuci(
+        return self.preporucivac.preporuci(
             id_korisnika,
             alfa,
             ogranicenje,
@@ -159,10 +159,10 @@ class SocialNetworkApp:
         if self.validiraj_novog_korisnika(id_korisnika, korisnicko_ime) is not None:
             return False
 
-        korisnik = User(id_korisnika, korisnicko_ime, biografija)
+        korisnik = Korisnik(id_korisnika, korisnicko_ime, biografija)
         self.graf.dodaj_korisnika(korisnik)
         self.pretrazivac.dodaj_korisnika_u_indeks(id_korisnika)
-        self.trie.dodaj(korisnicko_ime, id_korisnika)
+        self.prefiksno_stablo.dodaj(korisnicko_ime, id_korisnika)
         self._osvezi_pagerank()
         return True
 

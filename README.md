@@ -1,139 +1,106 @@
 # Drustvena mreza - ASP Projekat 2
 
-Konzolna Python aplikacija koja ucitava usmereni graf drustvene mreze i
-omogucava pretragu, rangiranje, preporuke i obilazak korisnika.
+Python konzolna aplikacija koja simulira deo drustvene mreze. Ucitava korisnike,
+follow veze i blokiranja, pa omogucava pretragu, rangiranje, preporuke i obilazak
+grafa.
 
 ## Pokretanje
 
-Potreban je Python 3.10 ili noviji. Projekat ne koristi spoljne biblioteke.
-
-Iz korenskog direktorijuma projekta pokrenuti:
+Potreban je Python 3.10+. Nisu koriscene spoljne biblioteke.
 
 ```powershell
 python main.py
 ```
 
-Nakon pokretanja bira se jedan od skupova:
-
-1. `small` - razvoj i brzo testiranje
-2. `medium` - demonstracija interaktivnog rada
-3. `full` - provera performansi
+Program na pocetku trazi da se izabere skup podataka: `small`, `medium` ili `full`.
 
 ## Ulazni fajlovi
 
-Za svaku velicinu skupa direktorijum `dataset/` sadrzi:
+Za svaku velicinu skupa u folderu `dataset/` se nalaze:
 
-- `users.txt` u formatu `id|username|bio`
-- `connections.txt` u formatu `from_id|to_id`
-- `blocked.txt` u formatu `blocker_id|blocked_id`
+- `users.txt` - `id|username|bio`
+- `connections.txt` - `from_id|to_id`
+- `blocked.txt` - `blocker_id|blocked_id`
 
-Pri pokretanju se fajlovi ucitavaju u memoriju i formiraju se potrebne
-strukture podataka. Nove veze i korisnici vaze tokom trenutnog pokretanja
-programa. Specifikacija ne zahteva cuvanje izmena nazad u ulazne fajlove.
+Fajlovi se ucitavaju u memoriju pri pokretanju programa. Novi korisnici i nove
+veze koje se dodaju tokom rada ne upisuju se nazad u fajlove, vec vaze samo dok
+program radi.
 
-## Implementirane funkcionalnosti
+## Sta je uradjeno
 
-1. Pretraga korisnika po korisnickom imenu, bez obzira na velicinu slova
-2. Pretraga po recima iz biografije pomocu inverted index strukture
-3. Iterativni PageRank sa damping faktorom `0.85` i `epsilon = 1e-6`
-4. Prikaz najuticajnijih korisnika pomocu heap strukture
-5. Dodavanje nove follow veze uz proveru korisnika, duplikata i blokiranja
-6. Hronoloska istorija novih follow veza dodatih tokom rada programa
-7. Trie autocomplete rangiran prema PageRank vrednosti
-8. Hibridne preporuke: `alpha * PPR + (1 - alpha) * Jaccard`
-9. BFS prikaz korisnika po nivoima konekcije
-10. "Did you mean" predlozi pomocu Levenshtein udaljenosti
-11. Filtriranje blokiranih korisnika u vezama i preporukama
-12. Dodavanje novog korisnika u graf, hash mape, indekse i Trie
-13. Ponovno racunanje PageRank-a nakon dodavanja veze ili korisnika
+- Pretraga po korisnickom imenu i po recima iz biografije, case insensitive
+- Inverted index za pretragu biografija
+- PageRank, damping `0.85`, epsilon `1e-6`
+- Ponovno racunanje PageRank-a posle dodavanja korisnika ili veze
+- Prikaz top korisnika preko heap-a
+- Dodavanje nove follow veze uz proveru da korisnici postoje, da veza ne postoji
+  vec i da nema blokiranja
+- Istorija dodatih veza, hronoloski
+- Autocomplete korisnickih imena preko prefiksnog stabla, sortirano po PageRank-u
+- Hibridne preporuke: `alpha * PPR + (1 - alpha) * Jaccard`
+- BFS po nivoima konekcije od izabranog korisnika
+- "Did you mean" preko Levenshtein rastojanja
+- Blokirani korisnici se ne prikazuju u preporukama
+- Ako izmedju dva korisnika postoji blokiranje, ne moze da se doda follow veza
+- Dodavanje novog korisnika u graf, indekse i prefiksno stablo
 
-## Strukture i algoritmi
+## Strukture koje su koriscene
 
-- Graf: skupovi izlaznih i ulaznih veza i mapa izlaznih stepena
-- Brz pristup korisnicima: hash mape po ID-u i korisnickom imenu
-- Pretraga biografija: inverted index
-- Autocomplete: sopstvena implementacija Trie strukture
-- Rangiranje: PageRank, Personalized PageRank i heap
-- Obilazak grafa: BFS uz `deque` i skup posecenih cvorova
-- Slicnost biografija: Jaccard slicnost skupova reci
-- Slicna imena: Levenshtein edit distance
+- Graf - hash mape za korisnike, izlazne veze, ulazne veze i blokiranja
+- Inverted index za reci iz biografija
+- Prefiksno stablo za autocomplete
+- Heap za top liste
+- BFS - `deque` i skup posecenih
+- Jaccard slicnost za poredjenje biografija
+- Levenshtein distanca za slicna korisnicka imena
 
-## Validacija i poruke
+## Provera unosa
 
-Meni proverava da su brojcani unosi pozitivni celi brojevi, da je `alpha`
-izmedju 0 i 1 i da tekstualni upiti nisu prazni. Pri dodavanju veze ili
-korisnika prikazuje se konkretan razlog neuspeha, na primer nepostojeci ID,
-zauzet ID ili username, postojeca veza, pokusaj pracenja samog sebe ili
-blokiranje.
+Program proverava da su brojevi validni, da je `alpha` izmedju 0 i 1 i da tekstualni
+unos nije prazan. Kada nesto ne moze da se uradi, ispisuje se razlog, na primer:
+korisnik ne postoji, ID ili username je zauzet, veza vec postoji, korisnik pokusava
+da zaprati samog sebe ili postoji blokiranje.
 
-Rezultati pretrage, autocomplete-a, BFS-a i top liste prikazuju ID,
-korisnicko ime i PageRank vrednost. Preporuke dodatno prikazuju kombinovani
-skor, PPR i Jaccard komponentu.
+Rezultati pretrage, autocomplete-a, BFS-a i top liste prikazuju ID, username i
+PageRank. Kod preporuka se vidi i ukupni skor, PPR i Jaccard deo.
 
-## Primeri za demonstraciju
+## Merenje vremena
 
-Na `small` skupu mogu se koristiti:
+Merenje je uradjeno 05.07.2026. na Windows-u. Vremena zavise od racunara i od toga
+sta jos radi u pozadini.
 
-- pretraga korisnickog imena: `gui`
-- pretraga biografije: `guildwars`
-- autocomplete prefiks: `mar`
-- BFS pocetni korisnik: ID `1`, maksimalni nivo `3`
-- preporuke: ID `1`, `alpha = 0.5`
-
-Za odbranu je preporuceno iste opcije demonstrirati na `medium` skupu.
-
-## Testiranje
-
-Specifikacija ne zahteva biblioteku za automatsko testiranje niti poseban
-`tests/` direktorijum. Izvrsena je funkcionalna smoke provera na `small`
-skupu koja obuhvata ucitavanje, pretragu, top korisnike, BFS, preporuke,
-dodavanje korisnika, azuriranje indeksa i ponovno racunanje PageRank-a.
-
-Na `medium` skupu provereni su ucitavanje, PageRank, top lista, pretraga
-biografije i BFS. Pocetno ucitavanje cele aplikacije trajalo je oko `4.26 s`
-i aplikacija je nakon toga radila interaktivno.
-
-## Merenje full skupa
-
-Merenje je izvrseno 24.06.2026. na Windows okruzenju sa Python verzijom
-3.12.13. Vremena zavise od procesora, memorije i trenutnog opterecenja
-racunara.
-
-Full skup sadrzi:
-
-- 81.306 korisnika
-- 1.768.135 follow veza
-
-Izmerena vremena:
+Full skup ima 81.306 korisnika, 1.768.135 follow veza i 1.626 blokiranja.
 
 | Operacija | Vreme |
 | --- | ---: |
-| Ucitavanje tekstualnih fajlova i formiranje grafa | 4.194 s |
-| Pocetno racunanje PageRank-a | 70.473 s |
-| Formiranje inverted index-a | 0.661 s |
-| Formiranje Trie strukture | 1.548 s |
-| Ukupno pocetno formiranje svih struktura | 76.876 s |
-| Top 10 PageRank korisnika | 0.005 s |
-| Pretraga biografije | 0.003 s |
-| BFS do nivoa 3 | 0.033 s |
-| Autocomplete | 0.002 s |
-| "Did you mean" | 1.281 s |
-| Hibridne preporuke | 41.874 s |
+| Ucitavanje fajlova i formiranje grafa | 4.649 s |
+| Pocetno racunanje PageRank-a | 228.536 s |
+| Formiranje inverted index-a | 2.127 s |
+| Formiranje prefiksnog stabla | 6.401 s |
+| Ukupno pocetno formiranje struktura | 241.713 s |
+| Top 10 po PageRank-u | 0.029 s |
+| Pretraga biografije | 0.001 s |
+| BFS do nivoa 3 | 0.104 s |
+| Autocomplete | 0.006 s |
+| "Did you mean" | 3.490 s |
+| Hibridne preporuke | 123.693 s |
 
-Najskuplje operacije su globalni PageRank i hibridne preporuke, zato sto
-PPR u preporukama ponovo iterativno prolazi kroz veliki graf. Ucitavanje,
-pretraga, top lista, autocomplete i BFS koriste unapred formirane strukture
-i znatno su brzi.
+PageRank i preporuke su najsporiji deo. Preporuke ponovo racunaju PPR za izabranog
+korisnika, sto znaci da opet prolaze kroz veliki graf. Ostale opcije rade nad vec
+formiranim strukturama, pa su dosta brze.
 
-## Organizacija projekta
+Na `medium` skupu je pocetno ucitavanje i formiranje struktura trajalo oko `4.893 s`,
+a nakon toga su opcije radile interaktivno.
 
-- `algorithms/` - PageRank i Personalized PageRank
-- `data_access/` - ucitavanje skupova podataka
-- `graph/` - model usmerenog grafa
-- `models/` - korisnicki model
-- `recommendations/` - hibridne preporuke
-- `search/` - pretraga i inverted index
-- `structures/` - Trie
-- `utils/` - obrada teksta i slicna imena
-- `app.py` - povezivanje algoritama i struktura
-- `main.py` - tekstualni korisnicki interfejs
+## Struktura projekta
+
+- `algoritmi/` - PageRank i personalizovani PageRank
+- `podaci/` - ucitavanje fajlova
+- `graph/` - graf
+- `modeli/` - klasa korisnika
+- `preporuke/` - hibridne preporuke
+- `pretraga/` - pretraga i inverted index
+- `strukture/` - prefiksno stablo
+- `pomocno/` - obrada teksta i Levenshtein
+- `app.py` - povezuje sve delove
+- `main.py` - meni
